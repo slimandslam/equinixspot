@@ -1,0 +1,25 @@
+.centerfit {
+    object-fit: contain;
+    width: auto;
+    height: 540px;
+}
+
+.txtcenter {
+  text-align: center;
+}
+
+.bottom {
+  position: absolute;
+  bottom: 0;
+  left: 3;
+  width: 100%;
+}
+
+.sizing {
+  height: 560px;
+}
+
+.ballsize {
+    width: 6rem; 
+    height: 6rem; 
+}

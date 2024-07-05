@@ -1,0 +1,34 @@
+{
+  "productName": "equinixspot",
+  "version": "0.9.0",
+  "identifier": "com.equinixspot.dev",
+  "build": {
+    "beforeDevCommand": "yarn dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "yarn build",
+    "frontendDist": "../dist"
+  },
+  "app": {"windows": [
+      {
+        "title": "equinixspot",
+        "width": 800,
+        "height": 680
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "iOS": { "developmentTeam": "sxkdjj33"}
+  }
+}

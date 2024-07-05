@@ -1,0 +1,256 @@
+import { useState, useEffect } from "react";
+import Spinner from 'react-bootstrap/Spinner';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import Image from 'react-bootstrap/Image';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { GearFill } from 'react-bootstrap-icons';
+import { fetch } from '@tauri-apps/plugin-http';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2';
+import { Store } from "@tauri-apps/plugin-store";
+import Settings from "./Settings";
+import { Download } from "./Download";
+import "./App.css";
+import { isIOS } from "./Oscheck";
+import { isAndroid } from "./Oscheck";
+
+      const continents = {
+                "Americas": ["BR", "CA", "MX", "US"],
+                "Europe and Middle East": ["DE", "FI", "FR", "GB", "IE", "IT", "NL", "SE", "ES", "TR", "AE"],
+                "Asia-Pacific": ["AU", "HK", "IN", "JP", "KR", "SG"]
+            };
+
+     const countries = {
+                "BR": "Brazil",
+                "CA": "Canada",
+                "MX": "Mexico",
+                "US": "United States",
+                "DE": "Germany",
+                "FI": "Finland",
+                "FR": "France",
+                "GB": "United Kingdom",
+                "IE": "Ireland",
+                "IT": "Italy",
+                "NL": "Netherlands",
+                "SE": "Sweden",
+                "ES": "Spain",
+                "TR": "Turkey",
+                "AE": "United Arab Emirates",
+                "AU": "Australia",
+                "HK": "Hong Kong",
+                "IN": "India",
+                "JP": "Japan",
+                "KR": "South Korea",
+                "SG": "Singapore"
+            };
+
+
+function App() {
+  const [spin, showSpinner] = useState(false);
+  const [content, setContent] = useState(null);
+  const [data, setData] = useState(null);
+  const [settings, setSettings] = useState(false);
+  const hideSettings = () => setSettings(false);
+
+  function statusCheck(code, msg) {
+     switch (code) {
+  case 400:
+     ShowMsg("Status code 400: " + msg);
+    break;
+  case 401:
+     ShowMsg("Status code 401: You have a missing or invalid API key. Click the gear in the lower left-hand corner to add an API key");
+    break;
+  case 429:
+    ShowMsg("Status code 429: You exceeded your quota or rate limit");
+    break;
+  case '500':
+     ShowMsg("Status code 500: Openai's server had a problem with your request");
+    break;
+  case '503':
+     ShowMsg("Status code 503: Openai's server is overloaded. Try again later");
+    break;
+  default:
+     ShowMsg("Status code " + code + ": Unknown status code -- Sorry");
+}
+}
+
+  async function handleSubmit(event) {
+     event.preventDefault();
+     event.stopPropagation();
+
+ /*    if (prompt === null || prompt === "")  {
+       Swal.fire({
+         text: 'Please provide a prompt',
+        confirmButtonText: 'Ok'
+       })
+       return;
+     }
+
+*/
+     ClearEntry();
+
+     const store = new Store(".settings.json");
+     const apikey = await store.get("equinix");
+     const url = "https://api.equinix.com/metal/v1/market/spot/prices";
+
+     if (apikey === null) {
+        statusCheck(401, "");
+        return;
+     }
+
+     console.log("APIKEY=",apikey.val);
+
+     showSpinner(true);
+
+    try {
+      const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+       "X-Auth-Token" :   apikey.val
+      }
+      });
+
+     showSpinner(false);
+
+     if (!response.ok) {
+        statusCheck(response.status, responseJSON.error.message);
+        return;
+     }
+
+     const responseJSON = await response.json();
+
+     setData(responseJSON);
+     updateCountries();
+     updateMetros();
+
+     console.log("CALL RETURNS:", responseJSON);
+
+   } catch(error) {
+     ShowMsg(error);
+     showSpinner(false);
+   }
+  }
+
+  function ShowMsg(content) {
+         setContent(<p className="txtcenter"><strong>{content}</strong></p>);
+  }
+
+  function ClearEntry() {
+      setContent(null);
+  }
+
+
+/*  useEffect(
+    () => {
+      let isEmpty = document.getElementById('thepic').innerHTML === "";
+      if (isEmpty) {
+         setContent(<center><h1>PICTURE THIS</h1></center>);
+      }
+    },
+    [] 
+   );
+ */
+
+  function gotoSettings() {
+     setSettings(true);
+  } 
+
+
+            function updateCountries() {
+                const continentSelect = document.getElementById('continent');
+                const countrySelect = document.getElementById('country');
+                const metroSelect = document.getElementById('metro');
+                const selectedContinent = continentSelect.value;
+
+                countrySelect.innerHTML = '<option value="">Select Country</option>';
+                metroSelect.innerHTML = '<option value="">Select Metro</option>';
+
+                if (selectedContinent && continents[selectedContinent]) {
+                    continents[selectedContinent].forEach(countryCode => {
+                        const option = document.createElement('option');
+                        option.value = countryCode;
+                        option.text = countries[countryCode];
+                        countrySelect.appendChild(option);
+                    });
+                }
+            }
+
+            function updateMetros() {
+                const countrySelect = document.getElementById('country');
+                const metroSelect = document.getElementById('metro');
+                const selectedCountry = countrySelect.value;
+
+                metroSelect.innerHTML = '<option value="">Select Metro</option>';
+
+                if (selectedCountry) {
+                    JSON.parse(data).metros
+                        .filter(metro => metro.country === selectedCountry)
+                        .forEach(metro => {
+                            const option = document.createElement('option');
+                            option.value = metro.code;
+                            option.text = metro.name;
+                            metroSelect.appendChild(option);
+                        });
+                }
+            }
+
+document.addEventListener('DOMContentLoaded', (event) => {
+      document.getElementById('continent').addEventListener('change', updateCountries);
+      document.getElementById('country').addEventListener('change', updateMetros);
+});
+        
+
+  return (
+    <Container className="sizing" fluid>
+     {(settings) ? <Settings showit={settings} hideit={hideSettings} /> : null }
+
+     <Row className="top mb-4" >
+      <Form  
+         onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
+       <InputGroup>
+        <Button title="Your API Key" className="border-0" onClick={() => gotoSettings()} variant="outline-primary"><span><GearFill size={32} /></span></Button>
+      </InputGroup> 
+
+      </Form>
+
+     </Row>
+
+     <Row>
+     <Col className="d-flex justify-content-left align-items-left">
+    <Form>
+        <Form.Select id="continent" name="continent">
+            <option value="">Select Continent</option>
+            <option value="Americas">Americas</option>
+            <option value="Europe and Middle East">Europe and Middle East</option>
+            <option value="Asia-Pacific">Asia-Pacific</option>
+        </Form.Select>
+        <br />
+        <Form.Select id="country" name="country">
+            <option value="">Select Country</option>
+        </Form.Select>
+        <br />
+        <Form.Select id="metro" name="metro">
+            <option value="">Select Metro</option>
+        </Form.Select>
+        <br />
+        <Button onClick={handleSubmit} variant="primary" id="mainbut">
+          Check Pricing
+        </Button>
+    </Form>
+      {spin && <Spinner className="ballsize d-flex justify-content-center align-items-center" animation="grow" variant="primary" />}
+     </Col>
+     <Col>Column 2 Content</Col>
+     </Row>
+    </Container>
+  );
+}
+
+export default App;
