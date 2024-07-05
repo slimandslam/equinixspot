@@ -33,6 +33,7 @@ export default function Settings(props) {
   }
 
   props.hideit();
+  props.setkey(h.value);
   }
 
   return (

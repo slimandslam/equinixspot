@@ -85,24 +85,29 @@ function App() {
   const [sortConfig, setSortConfig] = useState({ key: 'price', direction: 'asc' });
 
   const [spin, showSpinner] = useState(false);
-  const [content, setContent] = useState(null);
+  const [apikey, setApikey] = useState(null);
   const [settings, setSettings] = useState(false);
   const hideSettings = () => setSettings(false);
   const [data, setData] = useState(null);
 
 
-  async function getData() {
+  async function getData(apik) {
     let responseJSON = null;
-    const store = new Store(".settings.json");
-    const apikey = await store.get("equinix");
     const url = "https://api.equinix.com/metal/v1/market/spot/prices";
+    const store = new Store(".settings.json");
+    const akey = await store.get("equinix");
 
-    if (apikey === null) {
-      // statusCheck(401, "");
-      return;
-    }
+   if (akey === null)  {
+       Swal.fire({
+         text: 'You have a missing or invalid API key. Click the gear in the upper right hand corner to add your User API key',
+        confirmButtonText: 'Ok'
+       })
+       return;
+     }
 
-    console.log("APIKEY=", apikey.val);
+    setApikey(akey.val);
+
+    console.log("APIKEY SHOULD BE:", apikey);
 
     showSpinner(true);
 
@@ -110,26 +115,26 @@ function App() {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          "X-Auth-Token": apikey.val
+          "X-Auth-Token": akey.val 
         }
       });
 
       showSpinner(false);
 
       if (!response.ok) {
-        // statusCheck(response.status, responseJSON.error.message);
-        return;
+       Swal.fire({
+         text: 'You have a missing or invalid API key. Click the gear in the upper right hand corner to add or edit your User API key',
+        confirmButtonText: 'Ok'
+       })
+       return;
       }
 
       responseJSON = await response.json();
 
       setData(responseJSON);
 
-      console.log("CALL RETURNS:", responseJSON);
-      console.log("DATA IS SET:", data);
-
     } catch (error) {
-      // ShowMsg(error);
+      console.log("ERROR IS:", error);
       showSpinner(false);
     }
 
@@ -150,7 +155,7 @@ function App() {
 
   useEffect(() => {
    getData();
-  }, []);
+  }, [apikey]);
 
   const handleFilter = () => {
     let filteredResults = [];
@@ -201,7 +206,7 @@ function gotoSettings() {
 
   return (
     <Container>
-{(settings) ? <Settings showit={settings} hideit={hideSettings} /> : null }
+{(settings) ? <Settings setkey={setApikey} showit={settings} hideit={hideSettings} /> : null }
 
    <div className="position-relative" style={{ height: '100px' }}>
         <img src={logo} alt="Equinix Logo" style={{ width: '150px', height: 'auto', position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)' }} />
@@ -235,7 +240,7 @@ function gotoSettings() {
         </Form.Group>
 
         <Form.Group controlId="metro">
-          <Form.Label><strong>Metro</strong></Form.Label>
+          <Form.Label className="mt-2"><strong>Metro</strong></Form.Label>
           <Form.Control as="select" value={selectedMetro} onChange={(e) => setSelectedMetro(e.target.value)}>
             <option value="">All Metros</option>
             {metros.map(metro => {
@@ -277,7 +282,7 @@ function gotoSettings() {
               ))
             ) : (
               <tr>
-                <td colSpan="3">No results for your current selections</td>
+                <td colSpan="3">No results (try clicking the Filter button)</td>
               </tr>
             )}
           </tbody>
