@@ -107,8 +107,6 @@ function App() {
 
     setApikey(akey.val);
 
-    console.log("APIKEY SHOULD BE:", apikey);
-
     showSpinner(true);
 
     try {
