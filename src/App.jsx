@@ -12,10 +12,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Swal from 'sweetalert2';
 import { Store } from "@tauri-apps/plugin-store";
 import Settings from "./Settings";
-import { Download } from "./Download";
 import "./App.css";
-import { isIOS } from "./Oscheck";
-import { isAndroid } from "./Oscheck";
 import logo from './logo.png';
 
 
