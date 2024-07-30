@@ -27,4 +27,8 @@ $ npm install
  $ npm run tauri dev
  ```
 
+<figure>
+    <img src="https://imgur.com/a/fTBqjEO" alt="MacOS" width="800"/>
+    <figcaption>MacOS</figcaption>
+</figure>
 
