@@ -26,9 +26,9 @@ $ npm install
  ```sh
  $ npm run tauri dev
  ```
-** You'll need to signin to your Equinix Metal account: https://deploy.equinix.com
-** And create a user API key. You'll add that key to the app by clicking on the 
-** gear icon
+## You'll need to signin to your Equinix Metal account: https://deploy.equinix.com
+## And create a user API key. You'll add that key to the app by clicking on the 
+## gear icon
 
 <figure>
     <img src="https://i.imgur.com/BpjQj2t.jpeg" alt="MacOS" width="800"/>
