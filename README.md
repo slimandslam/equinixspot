@@ -28,7 +28,7 @@ $ npm install
  ```
 
 <figure>
-    <img src="https://imgur.com/a/fTBqjEO" alt="MacOS" width="800"/>
+    <img src="https://i.imgur.com/BpjQj2t.jpeg" alt="MacOS" width="800"/>
     <figcaption>MacOS</figcaption>
 </figure>
 
