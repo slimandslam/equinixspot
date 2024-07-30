@@ -1,5 +1,5 @@
 # equinixspot 
-# Spot pricing for Equinix users using React and Tauri
+# Spot pricing for Equinix Metal users using React and Tauri
 
 ### Author: Jason Levitt
 ### Initial Release Date: July 8th, 2024
